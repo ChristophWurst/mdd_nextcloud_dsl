@@ -25,5 +25,6 @@ Export-Package: com.nextcloud.appDSL.impl,
  com.nextcloud.parser.antlr.internal,
  com.nextcloud.serializer,
  com.nextcloud.validation,
- com.nextcloud.services
+ com.nextcloud.services,
+ com.nextcloud.formatting2
 Import-Package: org.apache.log4j
