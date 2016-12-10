@@ -1,0 +1,93 @@
+<idea-plugin version="2">
+	<extensions defaultExtensionNs="org.eclipse.xtext.idea">
+		<package
+			uri="http://www.nextcloud.com/AppDSL"
+			class="com.nextcloud.appDSL.AppDSLPackage"
+		/>
+		<resourceFactory 
+			type="nc"
+			class="org.eclipse.xtext.resource.IResourceFactory"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+		/>
+		<resourceServiceProvider
+			uriExtension="nc"
+			class="org.eclipse.xtext.idea.resource.IResourceIdeaServiceProvider"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+		/>
+
+		<lang.setup
+			language="com.nextcloud.AppDSL"
+			implementationClass="com.nextcloud.idea.AppDSLIdeaSetup"
+		/>
+	</extensions>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<psi.treeChangePreprocessor implementation="com.nextcloud.idea.lang.psi.AppDSLCodeBlockModificationListener"/>
+
+		<fileTypeFactory implementation="com.nextcloud.idea.lang.AppDSLFileTypeFactory"/>
+		<stubElementTypeHolder class="com.nextcloud.idea.lang.AppDSLElementTypeProvider"/>
+		<lang.ast.factory 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.lang.BaseXtextASTFactory"
+		/>
+		<lang.parserDefinition 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="com.nextcloud.idea.lang.parser.AppDSLParserDefinition"
+		/>
+		<lang.findUsagesProvider 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.findusages.BaseXtextFindUsageProvider"
+		/>
+		<lang.refactoringSupport 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.refactoring.BaseXtextRefactoringSupportProvider"
+		/>
+		<lang.namesValidator 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="com.intellij.lang.refactoring.NamesValidator"
+		/>
+		<lang.syntaxHighlighterFactory key="com.nextcloud.AppDSL" implementationClass="com.nextcloud.idea.highlighting.AppDSLSyntaxHighlighterFactory" />
+		<lang.braceMatcher 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="com.intellij.lang.PairedBraceMatcher"
+		/>
+		<annotator 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.annotation.IssueAnnotator"
+		/>
+		<completion.contributor language="com.nextcloud.AppDSL" implementationClass="com.nextcloud.idea.completion.AppDSLCompletionContributor"/>
+		<pom.declarationSearcher implementation="com.nextcloud.idea.lang.pom.AppDSLPomDeclarationSearcher"/>
+
+		<lang.psiStructureViewFactory 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="com.intellij.lang.PsiStructureViewFactory"
+		/>
+		<facetType implementation="com.nextcloud.idea.facet.AppDSLFacetType"/>
+		<lang.documentationProvider 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="org.eclipse.xtext.idea.documentation.IdeaDocumentationProvider"
+		/>
+		<colorSettingsPage implementation="com.nextcloud.idea.highlighting.AppDSLColorSettingsPage"/>
+		<highlightVisitor implementation="com.nextcloud.idea.highlighting.AppDSLSemanticHighlightVisitor"/>
+
+		<lang.formatter 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="com.intellij.formatting.FormattingModelBuilder"
+		/>
+		<lang.commenter 
+			language="com.nextcloud.AppDSL"
+			factoryClass="com.nextcloud.idea.AppDSLExtensionFactory"
+			implementationClass="com.intellij.lang.CodeDocumentationAwareCommenter"
+		/>
+	</extensions>
+</idea-plugin>

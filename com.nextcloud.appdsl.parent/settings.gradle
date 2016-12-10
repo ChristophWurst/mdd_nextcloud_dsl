@@ -1,0 +1,3 @@
+includeFlat 'com.nextcloud.appdsl'
+includeFlat 'com.nextcloud.appdsl.ide'
+includeFlat 'com.nextcloud.appdsl.idea'

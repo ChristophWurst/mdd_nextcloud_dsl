@@ -1,0 +1,40 @@
+grammar com.nextcloud.AppDSL with org.eclipse.xtext.common.Terminals
+
+generate appDSL "http://www.nextcloud.com/AppDSL"
+
+App:
+	'App' name=ID '{'
+	entities+=Entity*
+	resources+=Resource*
+	'}';
+
+Resource:
+	'Resource' name=ID '(' entity=[Entity] ')'
+;
+
+Entity:
+	'Entity' name=ID '{'
+	attributes+=Attribute*
+	'}';
+
+Attribute:
+	(PredefinedAttribute | RefAttribute | CustomAttribute) ';';
+
+PredefinedAttribute:
+	'attr' attr=PredefinedAttributeType;
+
+CustomAttribute:
+	'attr' type=AttributeType name=ID;
+
+RefAttribute:
+	'ref' ref=[Entity];
+
+enum PredefinedAttributeType:
+	UID='UID'
+;
+
+enum AttributeType:
+	BOOL='bool'
+	| INT='int'
+	| STRING='string'
+	| TEXT='text';
