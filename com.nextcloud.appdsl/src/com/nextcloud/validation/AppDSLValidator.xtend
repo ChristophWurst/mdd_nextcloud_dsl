@@ -3,23 +3,31 @@
  */
 package com.nextcloud.validation
 
+import com.nextcloud.appDSL.App
+import com.nextcloud.appDSL.AppDSLPackage
+import org.eclipse.xtext.validation.Check
+import com.nextcloud.appDSL.Entity
 
-/**
- * This class contains custom validation rules. 
- *
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
- */
 class AppDSLValidator extends AbstractAppDSLValidator {
-	
-//	public static val INVALID_NAME = 'invalidName'
-//
-//	@Check
-//	def checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.name.charAt(0))) {
-//			warning('Name should start with a capital', 
-//					AppDSLPackage.Literals.GREETING__NAME,
-//					INVALID_NAME)
-//		}
-//	}
-	
+
+	public static val INVALID_APP_NAME = 'invalidName'
+	public static val INVALID_ENTITY_NAME = 'invalidName'
+	private static val REGEX_CAMEL_CASE = "[A-Z][a-z]*([A-Z]+[a-z]*)*"
+
+	@Check
+	def checkAppNameStartsWithCapital(App app) {
+		if (!app.name.matches(REGEX_CAMEL_CASE)) {
+			error('App name should be camel case', AppDSLPackage.Literals.APP__NAME,
+				com.nextcloud.validation.AppDSLValidator.INVALID_APP_NAME)
+		}
+	}
+
+	@Check
+	def checkEntityName(Entity entity) {
+		if (!entity.name.matches(REGEX_CAMEL_CASE)) {
+			error('Entity name is empty or not camel case', AppDSLPackage.Literals.ENTITY__NAME,
+				com.nextcloud.validation.AppDSLValidator.INVALID_ENTITY_NAME)
+		}
+	}
+
 }

@@ -9,8 +9,7 @@ App:
 	'}';
 
 Resource:
-	'Resource' name=ID '(' entity=[Entity] ')'
-;
+	'Resource' name=ID '(' entity=[Entity] ');';
 
 Entity:
 	'Entity' name=ID '{'
@@ -30,8 +29,7 @@ RefAttribute:
 	'ref' ref=[Entity];
 
 enum PredefinedAttributeType:
-	UID='UID'
-;
+	UID='UID';
 
 enum AttributeType:
 	BOOL='bool'
