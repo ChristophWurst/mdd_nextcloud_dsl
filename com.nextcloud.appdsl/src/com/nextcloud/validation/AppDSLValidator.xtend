@@ -9,15 +9,13 @@ import org.eclipse.xtext.validation.Check
 import com.nextcloud.appDSL.Entity
 import com.nextcloud.appDSL.Attribute
 import com.nextcloud.appDSL.CustomAttribute
-import com.nextcloud.appDSL.PredefinedAttribute
 import com.nextcloud.appDSL.RefAttribute
-import org.eclipse.emf.ecore.EStructuralFeature
 
 class AppDSLValidator extends AbstractAppDSLValidator {
 
 	public static val INVALID_APP_NAME = 'invalidName'
 	public static val INVALID_ENTITY_NAME = 'invalidName'
-	public static val INVALID_ATTRIBUTE_NAME = 'invalidAttributeName'
+	public static val DUPLICATE_ATTRIBUTE_NAME = 'invalidAttributeName'
 	private static val REGEX_CAMEL_CASE = "[A-Z][a-z]*([A-Z]+[a-z]*)*"
 
 	@Check
@@ -39,13 +37,13 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 	@Check
 	def checkEntityAttributeNamesUniquea(Attribute attribute) {
 		var parent = attribute.eContainer as Entity;
-		if (parent.attributes.filter[a | a.name == attribute.name].size > 1) {
+		if (parent.attributes.filter[a|a.name == attribute.name].size > 1) {
 			if (attribute instanceof CustomAttribute) {
 				error('Attribute is not unique', AppDSLPackage.Literals.CUSTOM_ATTRIBUTE__NAME,
-					com.nextcloud.validation.AppDSLValidator.INVALID_ATTRIBUTE_NAME)
+					com.nextcloud.validation.AppDSLValidator.DUPLICATE_ATTRIBUTE_NAME)
 			} else if (attribute instanceof RefAttribute) {
 				error('Attribute is not unique', AppDSLPackage.Literals.REF_ATTRIBUTE__REF,
-					com.nextcloud.validation.AppDSLValidator.INVALID_ATTRIBUTE_NAME)
+					com.nextcloud.validation.AppDSLValidator.DUPLICATE_ATTRIBUTE_NAME)
 			}
 		}
 	}

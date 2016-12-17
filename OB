@@ -1,0 +1,88 @@
+[1mdiff --git a/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AppDSLQuickfixProvider.xtend b/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AppDSLQuickfixProvider.xtend[m
+[1mindex 822129b..dbaa4fc 100644[m
+[1m--- a/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AppDSLQuickfixProvider.xtend[m
+[1m+++ b/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AppDSLQuickfixProvider.xtend[m
+[36m@@ -15,4 +15,9 @@[m [mclass AppDSLQuickfixProvider extends DefaultQuickfixProvider {[m
+ 	def capitalizeName(Issue issue, IssueResolutionAcceptor acceptor) {[m
+ 		acceptor.accept(issue, 'Fix name', 'Remove invalid characters.', 'upcase.png', new RegexNameFixer())[m
+ 	}[m
+[32m+[m[41m	[m
+[32m+[m	[32m@Fix(AppDSLValidator.DUPLICATE_ATTRIBUTE_NAME)[m
+[32m+[m	[32mdef renameAttribute(Issue issue, IssueResolutionAcceptor acceptor) {[m
+[32m+[m		[32macceptor.accept(issue, 'Rename', 'Rename attribute.', 'upcase.png', new AttributeRenamer())[m
+[32m+[m	[32m}[m
+ }[m
+[1mdiff --git a/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AttributeRenamer.xtend b/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AttributeRenamer.xtend[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f63bb4d[m
+[1m--- /dev/null[m
+[1m+++ b/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/AttributeRenamer.xtend[m
+[36m@@ -0,0 +1,16 @@[m
+[32m+[m[32mpackage com.nextcloud.ui.quickfix[m
+[32m+[m
+[32m+[m[32mimport org.eclipse.emf.ecore.EObject[m
+[32m+[m[32mimport org.eclipse.xtext.ui.editor.model.edit.IModificationContext[m
+[32m+[m[32mimport org.eclipse.xtext.ui.editor.model.edit.ISemanticModification[m
+[32m+[m[32mimport com.nextcloud.appDSL.CustomAttribute[m
+[32m+[m
+[32m+[m[32mclass AttributeRenamer implements ISemanticModification {[m
+[32m+[m
+[32m+[m	[32moverride apply(EObject elem, IModificationContext context) throws Exception {[m
+[32m+[m		[32mvar element = elem[m
+[32m+[m		[32mif (element instanceof CustomAttribute) {[m
+[32m+[m			[32m(element as CustomAttribute).name = (element as CustomAttribute).name + '_2';[m
+[32m+[m		[32m}[m
+[32m+[m	[32m}[m
+[32m+[m[32m}[m
+[1mdiff --git a/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/RegexNameFixer.xtend b/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/RegexNameFixer.xtend[m
+[1mindex 3073c95..7d5c786 100644[m
+[1m--- a/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/RegexNameFixer.xtend[m
+[1m+++ b/com.nextcloud.appdsl.ui/src/com/nextcloud/ui/quickfix/RegexNameFixer.xtend[m
+[36m@@ -6,11 +6,11 @@[m [mimport org.eclipse.xtext.ui.editor.model.edit.ISemanticModification[m
+ import com.nextcloud.appDSL.App[m
+ [m
+ class RegexNameFixer implements ISemanticModification {[m
+[31m-	[m
+[32m+[m
+ 	def String sanitize(String s) {[m
+ 		return "wrong";[m
+ 	}[m
+[31m-	[m
+[32m+[m
+ 	override apply(EObject elem, IModificationContext context) throws Exception {[m
+ 		var element = elem[m
+ 		if (element instanceof App) {[m
+[1mdiff --git a/com.nextcloud.appdsl/src/com/nextcloud/validation/AppDSLValidator.xtend b/com.nextcloud.appdsl/src/com/nextcloud/validation/AppDSLValidator.xtend[m
+[1mindex 978d9c2..d3ee641 100644[m
+[1m--- a/com.nextcloud.appdsl/src/com/nextcloud/validation/AppDSLValidator.xtend[m
+[1m+++ b/com.nextcloud.appdsl/src/com/nextcloud/validation/AppDSLValidator.xtend[m
+[36m@@ -9,15 +9,13 @@[m [mimport org.eclipse.xtext.validation.Check[m
+ import com.nextcloud.appDSL.Entity[m
+ import com.nextcloud.appDSL.Attribute[m
+ import com.nextcloud.appDSL.CustomAttribute[m
+[31m-import com.nextcloud.appDSL.PredefinedAttribute[m
+ import com.nextcloud.appDSL.RefAttribute[m
+[31m-import org.eclipse.emf.ecore.EStructuralFeature[m
+ [m
+ class AppDSLValidator extends AbstractAppDSLValidator {[m
+ [m
+ 	public static val INVALID_APP_NAME = 'invalidName'[m
+ 	public static val INVALID_ENTITY_NAME = 'invalidName'[m
+[31m-	public static val INVALID_ATTRIBUTE_NAME = 'invalidAttributeName'[m
+[32m+[m	[32mpublic static val DUPLICATE_ATTRIBUTE_NAME = 'invalidAttributeName'[m
+ 	private static val REGEX_CAMEL_CASE = "[A-Z][a-z]*([A-Z]+[a-z]*)*"[m
+ [m
+ 	@Check[m
+[36m@@ -42,10 +40,10 @@[m [mclass AppDSLValidator extends AbstractAppDSLValidator {[m
+ 		if (parent.attributes.filter[a | a.name == attribute.name].size > 1) {[m
+ 			if (attribute instanceof CustomAttribute) {[m
+ 				error('Attribute is not unique', AppDSLPackage.Literals.CUSTOM_ATTRIBUTE__NAME,[m
+[31m-					com.nextcloud.validation.AppDSLValidator.INVALID_ATTRIBUTE_NAME)[m
+[32m+[m					[32mcom.nextcloud.validation.AppDSLValidator.DUPLICATE_ATTRIBUTE_NAME)[m
+ 			} else if (attribute instanceof RefAttribute) {[m
+ 				error('Attribute is not unique', AppDSLPackage.Literals.REF_ATTRIBUTE__REF,[m
+[31m-					com.nextcloud.validation.AppDSLValidator.INVALID_ATTRIBUTE_NAME)[m
+[32m+[m					[32mcom.nextcloud.validation.AppDSLValidator.DUPLICATE_ATTRIBUTE_NAME)[m
+ 			}[m
+ 		}[m
+ 	}[m

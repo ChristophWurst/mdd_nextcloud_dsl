@@ -3,18 +3,14 @@ package com.nextcloud.ui.quickfix
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.ui.editor.model.edit.IModificationContext
 import org.eclipse.xtext.ui.editor.model.edit.ISemanticModification
-import com.nextcloud.appDSL.App
+import com.nextcloud.appDSL.CustomAttribute
 
-class RegexNameFixer implements ISemanticModification {
-
-	def String sanitize(String s) {
-		return "wrong";
-	}
+class AttributeRenamer implements ISemanticModification {
 
 	override apply(EObject elem, IModificationContext context) throws Exception {
 		var element = elem
-		if (element instanceof App) {
-			(element as App).name = sanitize((element as App).name)
+		if (element instanceof CustomAttribute) {
+			(element as CustomAttribute).name = (element as CustomAttribute).name + '_2';
 		}
 	}
 }

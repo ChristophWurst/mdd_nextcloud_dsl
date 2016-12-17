@@ -15,4 +15,9 @@ class AppDSLQuickfixProvider extends DefaultQuickfixProvider {
 	def capitalizeName(Issue issue, IssueResolutionAcceptor acceptor) {
 		acceptor.accept(issue, 'Fix name', 'Remove invalid characters.', 'upcase.png', new RegexNameFixer())
 	}
+
+	@Fix(AppDSLValidator.DUPLICATE_ATTRIBUTE_NAME)
+	def renameAttribute(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, 'Rename', 'Rename attribute.', 'upcase.png', new AttributeRenamer())
+	}
 }
