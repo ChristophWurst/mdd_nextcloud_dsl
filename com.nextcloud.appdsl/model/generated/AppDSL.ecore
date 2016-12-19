@@ -30,6 +30,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="PredefinedAttributeType">
     <eLiterals name="UID" literal="UID"/>
+    <eLiterals name="CREATED_AT" value="1" literal="created_at"/>
+    <eLiterals name="UPDATED_AT" value="2" literal="updated_at"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="AttributeType">
     <eLiterals name="BOOL" literal="bool"/>

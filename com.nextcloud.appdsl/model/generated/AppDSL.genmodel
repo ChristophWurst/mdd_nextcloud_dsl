@@ -8,6 +8,8 @@
       fileExtensions="nc" ecorePackage="AppDSL.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="AppDSL.ecore#//PredefinedAttributeType">
       <genEnumLiterals ecoreEnumLiteral="AppDSL.ecore#//PredefinedAttributeType/UID"/>
+      <genEnumLiterals ecoreEnumLiteral="AppDSL.ecore#//PredefinedAttributeType/CREATED_AT"/>
+      <genEnumLiterals ecoreEnumLiteral="AppDSL.ecore#//PredefinedAttributeType/UPDATED_AT"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="AppDSL.ecore#//AttributeType">
       <genEnumLiterals ecoreEnumLiteral="AppDSL.ecore#//AttributeType/BOOL"/>

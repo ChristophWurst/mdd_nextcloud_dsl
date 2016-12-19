@@ -29,7 +29,9 @@ RefAttribute:
 	'ref' ref=[Entity];
 
 enum PredefinedAttributeType:
-	UID='UID';
+	UID='UID'
+	| CREATED_AT='created_at'
+	| UPDATED_AT='updated_at';
 
 enum AttributeType:
 	BOOL='bool'
