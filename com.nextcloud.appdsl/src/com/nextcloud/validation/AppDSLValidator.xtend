@@ -16,6 +16,7 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 	public static val INVALID_APP_NAME = 'invalidName'
 	public static val INVALID_ENTITY_NAME = 'invalidName'
 	public static val DUPLICATE_ATTRIBUTE_NAME = 'invalidAttributeName'
+	public static val ATTRIBUTE_NAME_TOO_LONG = 'attributeNameTooLong'
 	private static val REGEX_CAMEL_CASE = "[A-Z][a-z]*([A-Z]+[a-z]*)*"
 
 	@Check
@@ -55,6 +56,18 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 			return (attribute as CustomAttribute).name;
 		}
 		return '';
+	}
+
+	@Check
+	def checkColumnNameLength(CustomAttribute attribute) {
+		// Names longer than 32chars are problematic
+		if (attribute.name.length > 32) {
+			warning(
+				'Long attribute names are problematic on SQLite',
+				AppDSLPackage.Literals.CUSTOM_ATTRIBUTE__NAME,
+				com.nextcloud.validation.AppDSLValidator.ATTRIBUTE_NAME_TOO_LONG
+			);
+		}
 	}
 
 }
