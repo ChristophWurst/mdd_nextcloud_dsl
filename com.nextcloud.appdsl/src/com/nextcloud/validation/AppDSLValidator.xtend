@@ -17,6 +17,7 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 	public static val INVALID_ENTITY_NAME = 'invalidName'
 	public static val DUPLICATE_ATTRIBUTE_NAME = 'invalidAttributeName'
 	public static val ATTRIBUTE_NAME_TOO_LONG = 'attributeNameTooLong'
+	public static val MANUAL_ID_ATTRIBUTE = 'manualIdAttribute'
 	private static val REGEX_CAMEL_CASE = "[A-Z][a-z]*([A-Z]+[a-z]*)*"
 
 	@Check
@@ -67,6 +68,16 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 				AppDSLPackage.Literals.CUSTOM_ATTRIBUTE__NAME,
 				com.nextcloud.validation.AppDSLValidator.ATTRIBUTE_NAME_TOO_LONG
 			);
+		}
+	}
+
+	@Check
+	def checkCustomIdAttribute(CustomAttribute attribute) {
+		// an 'id' attribute is generated automatically, so we have to prevent
+		// a manually added one.
+		if (attribute.name == 'id') {
+			error('An \'id\' attribute is generated automatically', AppDSLPackage.Literals.CUSTOM_ATTRIBUTE__NAME,
+				com.nextcloud.validation.AppDSLValidator.MANUAL_ID_ATTRIBUTE)
 		}
 	}
 

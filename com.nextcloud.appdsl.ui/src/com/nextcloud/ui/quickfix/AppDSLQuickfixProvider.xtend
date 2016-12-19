@@ -25,4 +25,9 @@ class AppDSLQuickfixProvider extends DefaultQuickfixProvider {
 	def shortenAttributeName(Issue issue, IssueResolutionAcceptor acceptor) {
 		acceptor.accept(issue, 'Shorten', 'Shorten name.', 'upcase.png', new AttributeNameShortener())
 	}
+
+	@Fix(AppDSLValidator.MANUAL_ID_ATTRIBUTE)
+	def preventCustomIdAttribute(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, 'Remove', 'Remove this attribute.', 'upcase.png', new IdAttributeRemover())
+	}
 }
