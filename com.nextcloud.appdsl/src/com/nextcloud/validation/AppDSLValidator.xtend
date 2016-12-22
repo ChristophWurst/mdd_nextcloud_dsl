@@ -15,6 +15,7 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 
 	public static val INVALID_APP_NAME = 'invalidName'
 	public static val INVALID_ENTITY_NAME = 'invalidName'
+	public static val NO_ENTITY_ATTRIBUTES = 'noEntityAttributes'
 	public static val DUPLICATE_ATTRIBUTE_NAME = 'invalidAttributeName'
 	public static val ATTRIBUTE_NAME_TOO_LONG = 'attributeNameTooLong'
 	public static val MANUAL_ID_ATTRIBUTE = 'manualIdAttribute'
@@ -32,7 +33,15 @@ class AppDSLValidator extends AbstractAppDSLValidator {
 	def checkEntityName(Entity entity) {
 		if (!entity.name.matches(REGEX_CAMEL_CASE)) {
 			error('Entity name is empty or not camel case', AppDSLPackage.Literals.ENTITY__NAME,
-				com.nextcloud.validation.AppDSLValidator.INVALID_ENTITY_NAME)
+				com.nextcloud.validation.AppDSLValidator.NO_ENTITY_ATTRIBUTES)
+		}
+	}
+
+	@Check
+	def checkEntityHasAttributes(Entity entity) {
+		if (entity.attributes.size == 0) {
+			info('Entity does not have any attributes', AppDSLPackage.Literals.ENTITY__ATTRIBUTES,
+				com.nextcloud.validation.AppDSLValidator.NO_ENTITY_ATTRIBUTES)
 		}
 	}
 

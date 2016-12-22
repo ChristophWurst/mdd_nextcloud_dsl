@@ -7,6 +7,12 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import com.nextcloud.appDSL.Entity
+import com.nextcloud.appDSL.App
+import java.util.List
+import com.nextcloud.appDSL.CustomAttribute
+import com.nextcloud.appDSL.PredefinedAttribute
+import com.nextcloud.appDSL.RefAttribute
 
 /**
  * Generates code from your model files on save.
@@ -15,11 +21,241 @@ import org.eclipse.xtext.generator.IGeneratorContext
  */
 class AppDSLGenerator extends AbstractGenerator {
 
-	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(typeof(Greeting))
-//				.map[name]
-//				.join(', '))
+	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
+		for (app : input.allContents.toIterable.filter(typeof(App))) {
+			fsa.generateFile(app.name.toLowerCase + '/appinfo/info.xml', infoFile(app));
+			fsa.generateFile(app.name.toLowerCase + '/appinfo/database.xml', dbFile(app, app.entities));
+			for (entity : app.entities) {
+				fsa.generateFile(app.name.toLowerCase + '/Db/' + entity.name + '.php', entityClass(app, entity));
+				fsa.generateFile(app.name.toLowerCase + '/Db/' + entity.name + 'Mapper.php', entityMapperClass(app, entity));
+			}
+
+			if (app.resources.size > 0) {
+				fsa.generateFile(app.name.toLowerCase + '/appinfo/routes.php', routesFile(app));
+			}
+			for (resource : app.resources) {
+				fsa.generateFile(app.name.toLowerCase + '/Controller/' + resource.name + 'Controller.php',
+					resourceControllerClass(app, resource));
+			}
+		}
 	}
+
+	def infoFile(App app) '''
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>«app.name.toLowerCase»</id>
+	<name>«app.name»</name>
+	<version>0.1.0</version>
+	<licence>agpl</licence>
+	<namespace>«app.name»</namespace>
+
+	<dependencies>
+		<php min-version="5.6" max-version="7.1"></php>
+		<nextcloud min-version="12" max-version="12" />
+	</dependencies>
+</info>
+	'''
+
+	def resourceControllerClass(App app, com.nextcloud.appDSL.Resource resource) '''
+<?php
+
+namespace OCA\«app.name»\Controller;
+
+use OCP\IRequest;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\ApiController;
+use OCP\«app.name»\Db\«resource.entity.name»Mapper;
+
+class «resource.name» extends ApiController {
+
+	/** @var «resource.entity.name»Mapper; */
+	private $mapper;
+
+	public function __construct($appName, IRequest $request, «resource.entity.name»Mapper $mapper) {
+		parent::__construct($appName, $request);
+		$this->mapper = $mapper;
+	}
+
+	/**
+	 * @PublicPage
+	 * @CORS
+	 * @return DataResponse
+	 */
+	public function index() {
+		return $this->mapper->findAll();
+	}
+
+	/**
+	 * @PublicPage
+	 * @CORS
+	 * @param int $id
+	 * @return DataResponse
+	 */
+	public function show($id) {
+		return $this->mapper->find($id);
+	}
+
+	/**
+	 * @PublicPage
+	 * @CORS
+	 * @return DataResponse
+	 */
+	public function create() {
+		$entity = new «resource.entity.name»();
+		// TODO: map request parameter
+		return $this->mapper->insert($entity);
+	}
+
+	/**
+	 * @PublicPage
+	 * @CORS
+	 * @param int $id
+	 * @return DataResponse
+	 */
+	public function update($id) {
+		$entity = $this->mapper->find($id);
+		// TODO: map request parameter
+		return $this->mapper->update($entity);
+	}
+
+	/**
+	 * @PublicPage
+	 * @CORS
+	 * @param int $id
+	 * @return DataResponse
+	 */
+	public function destroy($id) {
+		$entity = $this->mapper->find($id);
+		return $this->mapper->delete($entity);
+	}
+}
+
+	'''
+
+	def routesFile(App app) '''
+<?php
+return [
+	'resources' => [
+		«FOR r : app.resources»
+		'«r.name.toLowerCase»' => [
+			'url' => '/«r.name.toLowerCase»',
+		],
+		«ENDFOR»
+	],
+];
+	'''
+
+	def entityMapperClass(App app, Entity entity) '''
+<?php
+
+namespace OCA\«app.name»\Db;
+
+use OCP\AppFramework\Db\Mapper;
+use OCP\IDBConnection;
+
+class «entity.name»Mapper extends Mapper {
+
+	public function __construct(IDbConnection $dbConnection) {
+		parent::__construct($dbConnection, '«app.name.toLowerCase»_«entity.name.toLowerCase»');
+	}
+}
+	'''
+
+	def entityClass(App app, Entity entity) '''
+<?php
+
+namespace OCA\«app.name»\Db;
+
+use OCP\AppFramework\Db\Entity;
+
+class «entity.name» extends Entity {
+	«FOR a : entity.attributes»
+	«IF a instanceof CustomAttribute»
+	protected $«a.name.toFirstLower»;
+	«ENDIF»
+	«IF a instanceof RefAttribute»
+	protected $«a.ref.name.toFirstLower»Id;
+	«ENDIF»
+	«IF a instanceof PredefinedAttribute && (a as PredefinedAttribute).attr == 'UID'»
+	protected $uid;
+	«ENDIF»
+	«IF a instanceof PredefinedAttribute && (a as PredefinedAttribute).attr == 'created_at'»
+	protected $uid;
+	«ENDIF»
+	«IF a instanceof PredefinedAttribute && (a as PredefinedAttribute).attr == 'updated_at'»
+	protected $uid;
+	«ENDIF»
+	«ENDFOR»
+}
+
+	'''
+
+	def dbFile(App app, List<Entity> entities) '''
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<database>
+	<name>*dbname*</name>
+	<create>true</create>
+	<overwrite>false</overwrite>
+	<charset>utf8</charset>
+	«FOR e : entities»
+	<table>
+		<name>*dbprefix*«app.name.toLowerCase»_«e.name.toLowerCase»</name>
+		<declaration>
+			<field>
+				<name>id</name>
+				<type>integer</type>
+				<autoincrement>1</autoincrement>
+				<default>0</default>
+				<notnull>true</notnull>
+				<length>4</length>
+			</field>
+			«FOR a:e.attributes»
+			«IF a instanceof CustomAttribute»
+			<field>
+				<name>«a.name»</name>
+				<type>integer</type>
+				<autoincrement>1</autoincrement>
+				<default>0</default>
+				<notnull>true</notnull>
+				<length>4</length>
+			</field>
+			«ENDIF»
+			«IF a instanceof RefAttribute»
+			<field>
+				<name>«a.ref.name.toLowerCase»_id</name>
+				<type>integer</type>
+				<notnull>true</notnull>
+				<length>4</length>
+			</field>
+			«ENDIF»
+			«IF a instanceof PredefinedAttribute && (a as PredefinedAttribute).attr == 'UID'»
+			<field>
+				<name>uid</name>
+				<type>string</type>
+				<default>0</default>
+				<notnull>true</notnull>
+			</field>
+			«ENDIF»
+			«IF a instanceof PredefinedAttribute && (a as PredefinedAttribute).attr == 'created_at'»
+			<field>
+				<name>created_at</name>
+				<type>integer</type>
+				<default>0</default>
+				<notnull>true</notnull>
+			</field>
+			«ENDIF»
+			«IF a instanceof PredefinedAttribute && (a as PredefinedAttribute).attr == 'updated_at'»
+			<field>
+				<name>updated_at</name>
+				<type>integer</type>
+				<default>0</default>
+				<notnull>true</notnull>
+			</field>
+			«ENDIF»
+			«ENDFOR»
+		</declaration>
+	</table>
+	«ENDFOR»
+</database>
+	'''
 }

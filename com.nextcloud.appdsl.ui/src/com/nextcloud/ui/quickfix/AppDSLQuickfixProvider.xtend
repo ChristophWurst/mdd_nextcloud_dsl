@@ -21,6 +21,7 @@ class AppDSLQuickfixProvider extends DefaultQuickfixProvider {
 		acceptor.accept(issue, 'Rename', 'Rename attribute.', 'upcase.png', new AttributeRenamer())
 	}
 
+
 	@Fix(AppDSLValidator.ATTRIBUTE_NAME_TOO_LONG)
 	def shortenAttributeName(Issue issue, IssueResolutionAcceptor acceptor) {
 		acceptor.accept(issue, 'Shorten', 'Shorten name.', 'upcase.png', new AttributeNameShortener())
